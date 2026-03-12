@@ -1204,6 +1204,9 @@ export default function App() {
                           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                             email: loginEmail.trim(),
                             password: loginPassword,
+                            options: {
+                              emailRedirectTo: window.location.origin,
+                            }
                           });
 
                           if (signUpError) throw signUpError;
