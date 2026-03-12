@@ -136,6 +136,9 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [isAuthReady, setIsAuthReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -759,7 +762,7 @@ export default function App() {
               </button>
             ) : (
               <button 
-                onClick={loginWithGoogle}
+                onClick={() => setIsLoginModalOpen(true)}
                 className="text-[10px] text-white/40 hover:text-white flex items-center space-x-1 rtl:space-x-reverse uppercase tracking-widest"
               >
                 <LogIn size={12} />
@@ -1086,6 +1089,99 @@ export default function App() {
               >
                 OK
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Login Modal */}
+      <AnimatePresence>
+        {isLoginModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#111] border border-white/10 rounded-3xl w-full max-w-md p-8 space-y-6"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold">Admin Login</h3>
+                <button onClick={() => setIsLoginModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 ml-2">Email</label>
+                  <input 
+                    type="email" 
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="admin@example.com" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-white/40" 
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 ml-2">Password</label>
+                  <input 
+                    type="password" 
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-white/40" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button 
+                  onClick={async () => {
+                    try {
+                      setIsSubmitting(true);
+                      await supabase.auth.signInWithPassword({
+                        email: loginEmail,
+                        password: loginPassword,
+                      });
+                      setIsLoginModalOpen(false);
+                      setToast('Logged in successfully!');
+                      setTimeout(() => setToast(null), 3000);
+                    } catch (err: any) {
+                      alert(err.message || 'Login failed. Check your credentials.');
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  }}
+                  disabled={isSubmitting}
+                  className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? 'LOGGING IN...' : 'LOGIN'}
+                </button>
+                
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest"><span className="bg-[#111] px-2 text-white/20">Or</span></div>
+                </div>
+
+                <button 
+                  onClick={async () => {
+                    try {
+                      await loginWithGoogle();
+                    } catch (err: any) {
+                      alert(err.message || 'Google login failed.');
+                    }
+                  }}
+                  className="w-full bg-white/5 border border-white/10 text-white font-bold py-4 rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Globe size={18} />
+                  GOOGLE LOGIN
+                </button>
+              </div>
+              <p className="text-[10px] text-center text-white/20 uppercase tracking-widest">Default password: zoza2026</p>
             </motion.div>
           </motion.div>
         )}
