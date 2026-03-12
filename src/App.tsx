@@ -41,8 +41,8 @@ const translations = {
     music: { title: 'LATEST RELEASES', subtitle: 'Original Compositions & Arrangements', share: 'Share' },
     bio: { 
       title: 'THE ARTIST', 
-      subtitle: 'ZOZA El-Sheikh is a visionary composer and music producer based in Egypt. With a deep passion for cinematic soundscapes and ethnic fusion, he creates immersive musical experiences that transcend boundaries.',
-      details: 'Specializing in film scoring, commercial jingles, and modern arrangements, ZOZA brings a unique blend of traditional Middle Eastern soul and contemporary electronic textures to every project.'
+      subtitle: 'Zoza El Kedd began his career as a music producer in 2025, creating a unique musical style that blends dark atmospheres with the spirit of Eastern maqams in all their distinctive variations.',
+      details: 'His work spans trap, Afro, oriental and dark cinematic styles, designed to inspire artists or be used in films, games and independent projects. Zoza El Kedd aspires for his music to reach a global audience and become a signature sound for anyone seeking powerful and distinctive music.'
     },
     contact: { 
       title: 'WORK WITH ME', 
@@ -66,8 +66,8 @@ const translations = {
     music: { title: 'أحدث الأعمال', subtitle: 'ألحان وتوزيعات أصلية', share: 'مشاركة' },
     bio: { 
       title: 'عن الفنان', 
-      subtitle: 'زوزا الشيخ مؤلف ومنتج موسيقي صاحب رؤية، مقره مصر. مع شغف عميق بالموسيقى التصويرية والدمج العرقي، يخلق تجارب موسيقية غامرة تتجاوز الحدود.',
-      details: 'متخصص في التأليف الموسيقي للأفلام، الإعلانات، والتوزيعات الحديثة، يقدم زوزا مزيجاً فريداً من الروح الشرقية التقليدية واللمسات الإلكترونية المعاصرة في كل مشروع.'
+      subtitle: 'بدأ زوزا القيد مسيرته كمنتج موسيقي في عام 2025، حيث ابتكر أسلوباً موسيقياً فريداً يمزج بين الأجواء المظلمة وروح المقامات الشرقية بجميع تنويعاتها المميزة.',
+      details: 'تشمل أعماله أنماط التراب، الأفرو، الشرقي، والسينمائي المظلم، وهي مصممة لإلهام الفنانين أو لاستخدامها في الأفلام والألعاب والمشاريع المستقلة. يطمح زوزا القيد أن تصل موسيقاه إلى جمهور عالمي وتصبح صوتاً مميزاً لكل من يبحث عن موسيقى قوية وفريدة.'
     },
     contact: { 
       title: 'اطلب عملك الموسيقي', 
