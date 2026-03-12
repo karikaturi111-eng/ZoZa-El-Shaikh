@@ -849,10 +849,30 @@ export default function App() {
                       let audioUrl = formData.get('audiourl') as string;
 
                       try {
+                        setIsSubmitting(true);
+                        
+                        // Ensure 'music' bucket exists and is public
+                        // Note: In a real app, this should be done once or in the dashboard, 
+                        // but we'll add a check here for robustness in this environment.
+                        const { data: buckets } = await supabase.storage.listBuckets();
+                        const musicBucket = buckets?.find(b => b.name === 'music');
+                        
+                        if (!musicBucket) {
+                          const { error: createError } = await supabase.storage.createBucket('music', {
+                            public: true,
+                            allowedMimeTypes: ['image/*', 'audio/*'],
+                            fileSizeLimit: 52428800 // 50MB
+                          });
+                          if (createError) {
+                            console.warn('Could not create bucket automatically:', createError.message);
+                            // We continue because it might already exist but listBuckets failed due to permissions
+                          }
+                        }
+
                         // Upload Cover if file exists
                         if (coverFile && coverFile.size > 0) {
                           const fileExt = coverFile.name.split('.').pop();
-                          const fileName = `${Math.random()}.${fileExt}`;
+                          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
                           const { error: uploadError } = await supabase.storage
                             .from('music')
                             .upload(`covers/${fileName}`, coverFile);
@@ -868,7 +888,7 @@ export default function App() {
                         // Upload Audio if file exists
                         if (audioFile && audioFile.size > 0) {
                           const fileExt = audioFile.name.split('.').pop();
-                          const fileName = `${Math.random()}.${fileExt}`;
+                          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
                           const { error: uploadError } = await supabase.storage
                             .from('music')
                             .upload(`audio/${fileName}`, audioFile);
@@ -899,9 +919,9 @@ export default function App() {
                         (e.target as HTMLFormElement).reset();
                         setToast('Track added successfully!');
                         setTimeout(() => setToast(null), 3000);
-                      } catch (err) {
-                        console.error(err);
-                        alert('Error uploading files or adding track. Make sure "music" bucket exists and is public.');
+                      } catch (err: any) {
+                        console.error('Upload Error:', err);
+                        alert(`Upload failed: ${err.message || 'Unknown error'}. Please ensure your database is configured correctly.`);
                       } finally {
                         setIsSubmitting(false);
                       }
