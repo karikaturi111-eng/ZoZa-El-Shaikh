@@ -139,6 +139,7 @@ export default function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -150,14 +151,19 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       const user = session?.user ?? null;
       setUser(user);
-      setIsAdmin(user?.email === 'karikaturi111@gmail.com');
+      const isUserAdmin = user?.email?.toLowerCase() === 'karikaturi111@gmail.com';
+      setIsAdmin(isUserAdmin);
       setIsAuthReady(true);
+      if (isUserAdmin) {
+        setToast('Welcome back, Admin!');
+        setTimeout(() => setToast(null), 5000);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
       setUser(user);
-      setIsAdmin(user?.email === 'karikaturi111@gmail.com');
+      setIsAdmin(user?.email?.toLowerCase() === 'karikaturi111@gmail.com');
       setIsAuthReady(true);
     });
 
@@ -747,15 +753,16 @@ export default function App() {
             {isAdmin && (
               <button 
                 onClick={() => setIsAdminPanelOpen(true)}
-                className="text-[10px] text-white/40 hover:text-white flex items-center space-x-1 rtl:space-x-reverse uppercase tracking-widest"
+                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold transition-all flex items-center gap-2 border border-white/10"
               >
-                <span>Manage</span>
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                Admin Dashboard
               </button>
             )}
             {user ? (
               <button 
                 onClick={logout}
-                className="text-[10px] text-white/40 hover:text-white flex items-center space-x-1 rtl:space-x-reverse uppercase tracking-widest"
+                className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] transition-all flex items-center gap-2 border border-white/5"
               >
                 <LogOut size={12} />
                 <span>{user.email}</span>
@@ -910,16 +917,17 @@ export default function App() {
                     </div>
                     
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 ml-2">Cover Image</label>
+                      <label className="text-[10px] uppercase tracking-widest text-white/40 ml-2">Cover Image (JPG/PNG)</label>
                       <div className="flex gap-2">
-                        <input name="coverurl" placeholder="Or Image URL" className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-white/40 text-sm" />
-                        <label className="cursor-pointer bg-white/10 hover:bg-white/20 p-2 rounded-xl transition-colors flex items-center justify-center">
-                          <Upload size={18} />
+                        <input name="coverurl" placeholder="Or paste Image URL here" className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-white/40 text-sm" />
+                        <label className="cursor-pointer bg-white text-black hover:bg-white/90 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-widest">
+                          <Upload size={14} />
+                          Browse
                           <input type="file" name="coverFile" accept="image/*" className="hidden" onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
                               const input = e.target.closest('div')?.querySelector('input[name="coverurl"]') as HTMLInputElement;
-                              if (input) input.value = `File: ${file.name}`;
+                              if (input) input.value = `SELECTED: ${file.name}`;
                             }
                           }} />
                         </label>
@@ -929,14 +937,15 @@ export default function App() {
                     <div className="space-y-1">
                       <label className="text-[10px] uppercase tracking-widest text-white/40 ml-2">Audio File (MP3)</label>
                       <div className="flex gap-2">
-                        <input name="audiourl" placeholder="Or Audio URL" className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-white/40 text-sm" />
-                        <label className="cursor-pointer bg-white/10 hover:bg-white/20 p-2 rounded-xl transition-colors flex items-center justify-center">
-                          <Upload size={18} />
+                        <input name="audiourl" placeholder="Or paste Audio URL here" className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-white/40 text-sm" />
+                        <label className="cursor-pointer bg-white text-black hover:bg-white/90 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-widest">
+                          <Upload size={14} />
+                          Browse
                           <input type="file" name="audioFile" accept="audio/*" className="hidden" onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
                               const input = e.target.closest('div')?.querySelector('input[name="audiourl"]') as HTMLInputElement;
-                              if (input) input.value = `File: ${file.name}`;
+                              if (input) input.value = `SELECTED: ${file.name}`;
                             }
                           }} />
                         </label>
@@ -1116,6 +1125,12 @@ export default function App() {
               </div>
               
               <div className="space-y-4">
+                {loginError && (
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] p-3 rounded-xl flex items-start gap-2">
+                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                    <span>{loginError}</span>
+                  </div>
+                )}
                 <div className="space-y-1">
                   <label className="text-[10px] uppercase tracking-widest text-white/40 ml-2">Email</label>
                   <input 
@@ -1140,26 +1155,110 @@ export default function App() {
 
               <div className="space-y-3">
                 <button 
-                  onClick={async () => {
+                  type="button"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (isSubmitting) return;
+                    setLoginError(null);
+                    
+                    if (!loginEmail || !loginPassword) {
+                      setLoginError('Please enter both email and password');
+                      return;
+                    }
+
                     try {
                       setIsSubmitting(true);
-                      await supabase.auth.signInWithPassword({
-                        email: loginEmail,
+                      
+                      // 1. Try to Sign In first
+                      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+                        email: loginEmail.trim(),
                         password: loginPassword,
                       });
-                      setIsLoginModalOpen(false);
-                      setToast('Logged in successfully!');
-                      setTimeout(() => setToast(null), 3000);
+
+                      // 2. If sign in fails
+                      if (signInError) {
+                        if (signInError.message.includes('Email not confirmed')) {
+                          setLoginError(
+                            <div className="flex flex-col gap-2">
+                              <span>Email not confirmed. Please check your inbox or spam folder.</span>
+                              <button 
+                                onClick={async () => {
+                                  const { error } = await supabase.auth.resend({
+                                    type: 'signup',
+                                    email: loginEmail.trim(),
+                                  });
+                                  if (error) alert(error.message);
+                                  else alert('Confirmation email resent!');
+                                }}
+                                className="text-white underline text-[10px] font-bold uppercase tracking-widest"
+                              >
+                                Resend Confirmation Email
+                              </button>
+                            </div>
+                          );
+                          setIsSubmitting(false);
+                          return;
+                        }
+                        
+                        if (signInError.message.includes('Invalid login credentials')) {
+                          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                            email: loginEmail.trim(),
+                            password: loginPassword,
+                          });
+
+                          if (signUpError) throw signUpError;
+
+                          if (signUpData.user && !signUpData.session) {
+                            setLoginError('Account created! Please check your email to confirm your account before logging in.');
+                            setIsSubmitting(false);
+                            return;
+                          }
+                          
+                          if (signUpData.session) {
+                            setIsLoginModalOpen(false);
+                            setToast('Account created and logged in!');
+                            if (signUpData.user?.email?.toLowerCase() === 'karikaturi111@gmail.com') {
+                              setIsAdminPanelOpen(true);
+                            }
+                            setTimeout(() => setToast(null), 3000);
+                            return;
+                          }
+                        } else {
+                          throw signInError;
+                        }
+                      } else {
+                        // Sign in succeeded
+                        setIsLoginModalOpen(false);
+                        setToast('Logged in successfully!');
+                        if (data.user?.email?.toLowerCase() === 'karikaturi111@gmail.com') {
+                          setIsAdminPanelOpen(true);
+                        }
+                        setTimeout(() => setToast(null), 3000);
+                      }
                     } catch (err: any) {
-                      alert(err.message || 'Login failed. Check your credentials.');
+                      console.error('Auth error:', err);
+                      setLoginError(err.message || 'Authentication failed');
                     } finally {
                       setIsSubmitting(false);
                     }
                   }}
                   disabled={isSubmitting}
-                  className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
+                  className={`w-full font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                    isSubmitting 
+                      ? 'bg-white/20 text-white/40 cursor-not-allowed' 
+                      : 'bg-white text-black hover:bg-white/90 active:scale-[0.98]'
+                  }`}
                 >
-                  {isSubmitting ? 'LOGGING IN...' : 'LOGIN'}
+                  {isSubmitting ? (
+                    <>
+                      <motion.div 
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full"
+                      />
+                      PROCESSING...
+                    </>
+                  ) : 'LOGIN / CREATE ACCOUNT'}
                 </button>
                 
                 <div className="relative py-2">
@@ -1186,6 +1285,27 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Floating Admin Button */}
+      {isAdmin && (
+        <motion.button
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsAdminPanelOpen(true)}
+          className="fixed bottom-32 right-6 z-[60] bg-emerald-500 text-white font-bold px-8 py-5 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.4)] flex items-center gap-4 border-2 border-white/20 group"
+        >
+          <div className="relative">
+            <div className="w-4 h-4 bg-white rounded-full animate-ping absolute inset-0" />
+            <div className="w-4 h-4 bg-white rounded-full relative z-10" />
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-[10px] opacity-70 uppercase tracking-tighter leading-none mb-1">System Active</span>
+            <span className="uppercase tracking-[0.2em] text-sm leading-none">Admin Dashboard</span>
+          </div>
+        </motion.button>
+      )}
 
       {/* Audio Player Bar */}
       <AnimatePresence>
